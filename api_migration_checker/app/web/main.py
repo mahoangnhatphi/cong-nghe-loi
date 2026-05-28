@@ -8,6 +8,7 @@ from typing import Any
 import yaml
 from flask import Flask, Response, abort, jsonify, render_template, request, send_file
 
+from api_migration_checker.app.ai_mapping import available_providers, merge_suggestions, run_ai_mapping
 from api_migration_checker.app.config import load_config, validate_config
 from api_migration_checker.app.mapper import (
     build_config,
@@ -97,6 +98,7 @@ def mapper() -> str:
         old_curl_specs=DEFAULT_OLD_CURL_SPECS,
         new_curl_specs=DEFAULT_NEW_CURL_SPECS,
         test_cases=DEFAULT_TEST_CASES,
+        ai_providers=available_providers(),
     )
 
 
@@ -118,7 +120,22 @@ def mapper_analyze() -> tuple[str, int] | str:
             source_apis = parse_api_specs(request.form.get("old_apis", ""))
             target_apis = parse_api_specs(request.form.get("new_apis", ""))
         test_cases = parse_test_cases(request.form.get("test_cases", ""))
-        suggestions, unmatched_source, unmatched_target = suggest_mappings(flatten_api_responses(source_apis), flatten_api_responses(target_apis))
+        source_fields = flatten_api_responses(source_apis)
+        target_fields = flatten_api_responses(target_apis)
+        suggestions, unmatched_source, unmatched_target = suggest_mappings(source_fields, target_fields)
+        ai_result = None
+        if request.form.get("use_ai_mapping") == "yes":
+            if request.form.get("allow_ai_mapping") != "yes":
+                raise ValueError("Enable the AI consent checkbox before using AI-assisted mapping")
+            ai_result = run_ai_mapping(
+                source_fields,
+                target_fields,
+                provider=request.form.get("ai_provider", "auto"),
+                include_values=request.form.get("ai_include_values") == "yes",
+                manual_response=request.form.get("ai_response_json"),
+            )
+            if ai_result.suggestions:
+                suggestions = merge_suggestions(suggestions, ai_result.suggestions)
     except Exception as exc:
         return render_template("error.html", message=str(exc)), 400
     return render_template(
@@ -131,6 +148,7 @@ def mapper_analyze() -> tuple[str, int] | str:
         test_cases_json=to_json(test_cases),
         suggestion_dicts=[dataclass_dict(item) for item in suggestions],
         execution_statuses=execution_statuses,
+        ai_result=ai_result,
         to_json=to_json,
     )
 

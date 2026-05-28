@@ -70,6 +70,8 @@ Open `/mapper` to generate mappings from examples. It supports three input modes
 
 curl mode requires checking the execution confirmation box. Unsafe shell syntax such as pipes, redirects, command chaining, subshells, output files, and unsupported options is rejected.
 
+The mapper also supports optional AI-assisted matching. If `claude` or `opencode` is available on the machine, enable `Use AI-assisted mapping`, choose a provider, and confirm consent. The app sends only field paths and optional sample values, not headers/cookies/tokens. If CLI execution fails, the result page shows a generated prompt you can copy into an AI tool manually, then paste the returned JSON back into the mapper.
+
 ## Try The Sample
 
 Use `examples/config.sample.yaml` in the web form as a path, or upload it.

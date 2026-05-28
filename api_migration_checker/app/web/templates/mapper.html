@@ -17,6 +17,26 @@
     <p class="hint">curl mode only supports simple HTTP curl syntax. It never runs shell commands directly.</p>
   </section>
 
+  <section class="card ai-card">
+    <h2>AI-Assisted Matching</h2>
+    <p class="hint">
+      Optional. If <code>claude</code> or <code>opencode</code> is available on this machine, the app can send a structured mapping prompt to improve suggestions.
+      Available providers: <strong>{{ ai_providers|join(', ') if ai_providers else 'none detected' }}</strong>.
+    </p>
+    <label class="checkline"><input type="checkbox" name="use_ai_mapping" value="yes"> Use AI-assisted mapping</label>
+    <label>Provider</label>
+    <select name="ai_provider">
+      <option value="auto">Auto</option>
+      <option value="claude">Claude CLI</option>
+      <option value="opencode">OpenCode CLI</option>
+    </select>
+    <label class="checkline"><input type="checkbox" name="allow_ai_mapping" value="yes"> I allow field paths and sample values to be sent to the local AI CLI</label>
+    <label class="checkline"><input type="checkbox" name="ai_include_values" value="yes" checked> Include sample values in AI prompt</label>
+    <label>Manual AI JSON response fallback</label>
+    <textarea name="ai_response_json" rows="5" placeholder='{"mappings":[{"source_api":"old_customer_api","source_field":"data.customer_name","target_api":"new_profile_api","target_field":"profile.identity.fullName","compare_type":"exact","confidence":"HIGH","reason":"same customer name"}]}'></textarea>
+    <p class="hint">If automatic CLI execution fails, submit once to get the generated prompt on the result page, paste it into your AI tool, then paste the returned JSON here and analyze again.</p>
+  </section>
+
   <section class="mode-panel" data-mode="yaml">
     <section class="grid two mapper-input-grid">
       <div class="card">

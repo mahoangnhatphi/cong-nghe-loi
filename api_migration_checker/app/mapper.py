@@ -86,6 +86,7 @@ class MappingSuggestion:
     source_format: str | None = None
     target_format: str | None = None
     contains_direction: str | None = None
+    origin: str = "local"
 
 
 def parse_api_specs(raw: str) -> list[dict[str, Any]]:

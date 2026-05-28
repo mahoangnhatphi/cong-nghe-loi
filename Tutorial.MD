@@ -167,6 +167,16 @@ For curl mode, check the explicit execution checkbox before clicking `Analyze Re
 
 After analysis, review old and new values side by side, keep good mappings checked, edit compare rules if needed, then download the generated YAML config.
 
+Optional AI-assisted mapping:
+
+1. Enable `Use AI-assisted mapping`.
+2. Choose `Auto`, `Claude CLI`, or `OpenCode CLI`.
+3. Check the consent box.
+4. Leave `Include sample values` checked for better matches, or uncheck it for sensitive data.
+5. Click `Analyze Responses`.
+
+If automatic AI execution fails, open the generated prompt on the result page, copy it into your AI tool, then paste the JSON response into `Manual AI JSON response fallback` and analyze again.
+
 Then go back and click `Run Check`.
 
 The run should complete and show a summary with failures because the sample intentionally contains bad mappings and bad target values.
