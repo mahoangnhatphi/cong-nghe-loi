@@ -1,0 +1,7 @@
+case_id,mapping_name,source_api,target_api,source_field,target_field,status,message
+case_many_to_many_problematic,loyalty_tier_chinese_exact_fail,old_loyalty_api,new_rewards_api,loyalty.member_level,rewards.tierName,FAIL,"Values differ: ""\u91d1\u724c\u4f1a\u5458"" != ""\u94f6\u724c\u4f1a\u5458"""
+case_many_to_many_problematic,missing_source_field_fail,old_customer_api,new_profile_api,data.tax_identifier,profile.identity.id,FAIL,Missing object key: tax_identifier
+case_many_to_many_problematic,missing_target_field_fail,old_customer_api,new_profile_api,data.contact.phone,profile.contact.phoneNumber,FAIL,Missing object key: phoneNumber
+case_many_to_many_problematic,order_total_wrong_amount_fail,old_order_api,new_order_summary_api,order.total_amount,summary.payment.wrongTotal,FAIL,"Values differ: ""199.991"" != 250.0"
+case_many_to_many_problematic,referral_code_regex_fail,old_loyalty_api,new_rewards_api,loyalty.referral_code,rewards.referral.code,FAIL,"Values differ: ""CN-REF-2026-ZW"" != ""BAD-REF-2026"""
+case_many_to_many_problematic,second_item_nested_price_fail,old_order_api,new_order_summary_api,order.items[1].price,summary.lines[1].unitPrice,FAIL,"Values differ: ""111.19"" != 120.0"

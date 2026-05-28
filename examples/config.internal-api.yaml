@@ -1,0 +1,195 @@
+migration_name: internal-real-http-api-migration
+
+variables:
+  customerId: C1001
+  orderId: O9001
+  requestDate: "2026-05-28"
+
+source_apis:
+  - name: old_customer_api
+    method: GET
+    url: "http://127.0.0.1:8000/internal-api/old/customers/{customerId}"
+    headers:
+      Authorization: "Bearer ${OLD_API_TOKEN}"
+      Accept: "application/json"
+    timeout_seconds: 10
+    retry_count: 1
+
+  - name: old_order_api
+    method: POST
+    url: "http://127.0.0.1:8000/internal-api/old/orders/{orderId}"
+    headers:
+      X-API-Key: "${OLD_API_KEY}"
+      Content-Type: "application/json"
+    body:
+      customer_id: "${customerId}"
+      request_date: "${requestDate}"
+    timeout_seconds: 10
+    retry_count: 1
+
+  - name: old_loyalty_api
+    method: GET
+    url: "http://127.0.0.1:8000/internal-api/old/loyalty/{customerId}"
+    headers:
+      Cookie: "legacy_session=${OLD_LEGACY_SESSION}"
+      Accept: "application/json"
+    timeout_seconds: 10
+    retry_count: 1
+
+target_apis:
+  - name: new_profile_api
+    method: GET
+    url: "http://127.0.0.1:8000/internal-api/new/profiles/{customerId}"
+    headers:
+      Authorization: "Bearer ${NEW_API_TOKEN}"
+      Accept: "application/json"
+    timeout_seconds: 10
+    retry_count: 1
+
+  - name: new_order_summary_api
+    method: GET
+    url: "http://127.0.0.1:8000/internal-api/new/order-summary/{orderId}"
+    cookies:
+      new_session: "${NEW_SESSION_ID}"
+    timeout_seconds: 10
+    retry_count: 1
+
+  - name: new_rewards_api
+    method: GET
+    url: "http://127.0.0.1:8000/internal-api/new/rewards/{customerId}"
+    headers:
+      X-API-Key: "${NEW_API_KEY}"
+      Accept: "application/json"
+    timeout_seconds: 10
+    retry_count: 1
+
+test_cases:
+  - id: case_internal_api
+    params:
+      customerId: C1001
+      orderId: O9001
+      requestDate: "2026-05-28"
+
+field_mapping:
+  - name: chinese_name_exact_pass
+    source_api: old_customer_api
+    source_field: data.customer_name
+    target_api: new_profile_api
+    target_field: profile.identity.fullName
+    compare_type: exact
+
+  - name: english_name_ignore_case_pass
+    source_api: old_customer_api
+    source_field: data.english_name
+    target_api: new_profile_api
+    target_field: profile.identity.displayName
+    compare_type: ignore_case
+
+  - name: birth_date_format_pass
+    source_api: old_customer_api
+    source_field: data.birth_date
+    target_api: new_profile_api
+    target_field: profile.identity.birthDate
+    compare_type: date_format
+    source_format: dd/MM/yyyy
+    target_format: yyyy-MM-dd
+
+  - name: city_contains_pass
+    source_api: old_customer_api
+    source_field: data.contact.address.city
+    target_api: new_profile_api
+    target_field: profile.contact.primaryAddress.city
+    compare_type: contains
+    contains_direction: target_contains_source
+
+  - name: vip_boolean_pass
+    source_api: old_customer_api
+    source_field: data.vip
+    target_api: new_profile_api
+    target_field: profile.flags.isVip
+    compare_type: boolean
+
+  - name: order_total_tolerance_pass
+    source_api: old_order_api
+    source_field: order.total_amount
+    target_api: new_order_summary_api
+    target_field: summary.payment.total
+    compare_type: number
+    tolerance: 0.01
+
+  - name: order_total_wrong_amount_fail
+    source_api: old_order_api
+    source_field: order.total_amount
+    target_api: new_order_summary_api
+    target_field: summary.payment.wrongTotal
+    compare_type: number
+    tolerance: 0.01
+
+  - name: order_created_date_format_pass
+    source_api: old_order_api
+    source_field: order.created_at
+    target_api: new_order_summary_api
+    target_field: summary.placedDate
+    compare_type: date_format
+    source_format: yyyy/MM/dd
+    target_format: dd-MM-yyyy
+
+  - name: first_item_price_pass
+    source_api: old_order_api
+    source_field: order.items[0].price
+    target_api: new_order_summary_api
+    target_field: summary.lines[0].unitPrice
+    compare_type: number
+    tolerance: 0.01
+
+  - name: second_item_price_fail
+    source_api: old_order_api
+    source_field: order.items[1].price
+    target_api: new_order_summary_api
+    target_field: summary.lines[1].unitPrice
+    compare_type: number
+    tolerance: 0.01
+
+  - name: second_item_name_contains_pass
+    source_api: old_order_api
+    source_field: order.items[1].title
+    target_api: new_order_summary_api
+    target_field: summary.lines[1].productName
+    compare_type: contains
+    contains_direction: target_contains_source
+
+  - name: loyalty_tier_chinese_fail
+    source_api: old_loyalty_api
+    source_field: loyalty.member_level
+    target_api: new_rewards_api
+    target_field: rewards.tierName
+    compare_type: exact
+
+  - name: loyalty_points_pass
+    source_api: old_loyalty_api
+    source_field: loyalty.points
+    target_api: new_rewards_api
+    target_field: rewards.pointsBalance
+    compare_type: number
+    tolerance: 0
+
+  - name: loyalty_expiry_date_pass
+    source_api: old_loyalty_api
+    source_field: loyalty.expiry_date
+    target_api: new_rewards_api
+    target_field: rewards.validUntil
+    compare_type: date_format
+    source_format: dd/MM/yyyy
+    target_format: yyyy-MM-dd
+
+  - name: referral_regex_fail
+    source_api: old_loyalty_api
+    source_field: loyalty.referral_code
+    target_api: new_rewards_api
+    target_field: rewards.referral.code
+    compare_type: regex
+    pattern: "^CN-REF-[0-9]{4}-[A-Z]{2}$"
+
+output:
+  directory: ./results
+  sqlite_path: ./results/migration_check.db

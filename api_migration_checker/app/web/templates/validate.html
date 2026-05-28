@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>Validation Result</h1>
+  <p><strong>Config:</strong> {{ path }}</p>
+  {% if report.valid %}<p class="ok">Config is valid.</p>{% else %}<p class="bad">Config is invalid.</p>{% endif %}
+  {% if report.errors %}
+  <h2>Errors</h2>
+  <ul>{% for error in report.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if report.warnings %}
+  <h2>Warnings</h2>
+  <ul>{% for warning in report.warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+  {% endif %}
+  <a href="/">Back</a>
+</section>
+{% endblock %}

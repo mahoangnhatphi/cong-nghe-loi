@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Review Field Mappings</h1>
+  <p>Compare old and new fields side by side. Keep good suggestions checked, edit compare rules, then download YAML.</p>
+</section>
+
+<form method="post" action="/mapper/download">
+  <textarea hidden name="source_apis_json">{{ source_apis_json }}</textarea>
+  <textarea hidden name="target_apis_json">{{ target_apis_json }}</textarea>
+  <textarea hidden name="test_cases_json">{{ test_cases_json }}</textarea>
+  <textarea hidden name="suggestions_json">{{ to_json(suggestion_dicts) }}</textarea>
+
+  <section class="mapper-toolbar card">
+    <div>
+      <strong>{{ suggestions|length }}</strong> suggestions found.
+      <span class="muted">HIGH and MEDIUM suggestions are selected by default.</span>
+    </div>
+    <div class="actions compact">
+      <button class="primary" type="submit">Download Config YAML</button>
+      <a class="button" href="/mapper">Back</a>
+    </div>
+  </section>
+
+  {% if execution_statuses %}
+  <section class="card">
+    <h2>curl Execution Results</h2>
+    <div class="status-list">
+      {% for status in execution_statuses %}
+      <span class="status-pill {{ 'ok-pill' if status.ok else 'bad-pill' }}">{{ status.name }}: {{ status.status_code }} {{ status.message }}</span>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% for suggestion in suggestions %}
+  {% set selected = suggestion.confidence in ["HIGH", "MEDIUM"] %}
+  <section class="mapping-card card {{ suggestion.confidence|lower }}">
+    <div class="mapping-head">
+      <label class="checkline"><input type="checkbox" name="selected_mapping" value="{{ loop.index0 }}" {% if selected %}checked{% endif %}> Use this mapping</label>
+      <span class="badge {{ suggestion.confidence|lower }}">{{ suggestion.confidence }} {{ suggestion.score }}</span>
+      <span class="muted">{{ suggestion.reason }}</span>
+    </div>
+
+    <div class="mapping-compare">
+      <div class="field-panel old">
+        <h3>Old Field</h3>
+        <label>Source API</label>
+        <input name="source_api_{{ loop.index0 }}" value="{{ suggestion.source_api }}">
+        <label>Source field path</label>
+        <input name="source_field_{{ loop.index0 }}" value="{{ suggestion.source_field }}">
+        <pre><code>{{ suggestion.source_value }}</code></pre>
+      </div>
+
+      <div class="field-panel new">
+        <h3>New Field</h3>
+        <label>Target API</label>
+        <input name="target_api_{{ loop.index0 }}" value="{{ suggestion.target_api }}">
+        <label>Target field path</label>
+        <input name="target_field_{{ loop.index0 }}" value="{{ suggestion.target_field }}">
+        <pre><code>{{ suggestion.target_value }}</code></pre>
+      </div>
+
+      <div class="field-panel decision">
+        <h3>Compare</h3>
+        <label>Compare type</label>
+        <select name="compare_type_{{ loop.index0 }}">
+          {% for compare_type in ["exact", "ignore_case", "number", "boolean", "date_format", "contains", "regex", "custom_transform"] %}
+          <option {% if suggestion.compare_type == compare_type %}selected{% endif %}>{{ compare_type }}</option>
+          {% endfor %}
+        </select>
+        <label>Tolerance</label>
+        <input name="tolerance_{{ loop.index0 }}" value="{{ suggestion.tolerance or '' }}" placeholder="0.01">
+        <label>Source date format</label>
+        <input name="source_format_{{ loop.index0 }}" value="{{ suggestion.source_format or '' }}" placeholder="dd/MM/yyyy">
+        <label>Target date format</label>
+        <input name="target_format_{{ loop.index0 }}" value="{{ suggestion.target_format or '' }}" placeholder="yyyy-MM-dd">
+      </div>
+    </div>
+  </section>
+  {% endfor %}
+</form>
+
+<section class="grid two">
+  <div class="card">
+    <h2>Unmatched Old Fields</h2>
+    <ul class="plain">
+      {% for field in unmatched_source %}<li><code>{{ field.api_name }} {{ field.path }}</code> = {{ field.value }}</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="card">
+    <h2>Unmatched New Fields</h2>
+    <ul class="plain">
+      {% for field in unmatched_target %}<li><code>{{ field.api_name }} {{ field.path }}</code> = {{ field.value }}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

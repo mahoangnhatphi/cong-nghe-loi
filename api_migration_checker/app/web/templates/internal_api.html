@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Internal Sample API</h1>
+  <p>Use this page as the starting point for local real-HTTP API verification.</p>
+</section>
+
+<section class="card">
+  <h2>Status</h2>
+  <p class="ok">Internal sample API endpoints are active in this Flask app.</p>
+  <p class="muted">Start this app, set the environment variables below, then run <code>examples/config.internal-api.yaml</code> from the Run page.</p>
+</section>
+
+<section class="grid two">
+  <div class="card">
+    <h2>Endpoints</h2>
+    <ul class="plain">
+      <li><code>GET /internal-api/old/customers/&lt;customer_id&gt;</code></li>
+      <li><code>POST /internal-api/old/orders/&lt;order_id&gt;</code></li>
+      <li><code>GET /internal-api/old/loyalty/&lt;customer_id&gt;</code></li>
+      <li><code>GET /internal-api/new/profiles/&lt;customer_id&gt;</code></li>
+      <li><code>GET /internal-api/new/order-summary/&lt;order_id&gt;</code></li>
+      <li><code>GET /internal-api/new/rewards/&lt;customer_id&gt;</code></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Auth Values</h2>
+    <pre><code>export OLD_API_TOKEN="old-demo-token"
+export OLD_API_KEY="old-demo-api-key"
+export OLD_LEGACY_SESSION="old-session-123"
+export NEW_API_TOKEN="new-demo-token"
+export NEW_API_KEY="new-demo-api-key"
+export NEW_SESSION_ID="new-session-456"</code></pre>
+  </div>
+</section>
+
+<section class="card help">
+  <h2>Config Path Placeholder</h2>
+  <p>Use this path on the Run page:</p>
+  <pre><code>examples/config.internal-api.yaml</code></pre>
+  <div class="actions"><a class="button" href="/">Back To Run</a></div>
+</section>
+{% endblock %}

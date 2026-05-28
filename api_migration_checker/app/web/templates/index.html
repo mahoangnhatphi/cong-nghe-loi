@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Verify migrated API results</h1>
+  <p>Upload a YAML/JSON config or provide a local config path, then validate or run the migration check.</p>
+</section>
+
+<section class="grid two">
+<div class="card">
+  <h2>Run A Check</h2>
+  <form method="post" enctype="multipart/form-data">
+    <label>Upload config</label>
+    <input type="file" name="config_file" accept=".yaml,.yml,.json">
+    <p class="hint">Upload your own YAML/JSON config, or use a local path below.</p>
+
+    <label>Or config path</label>
+    <input type="text" name="config_path" placeholder="examples/config.problematic-many-to-many.yaml" value="examples/config.problematic-many-to-many.yaml">
+    <p class="hint">Try <code>examples/config.sample.yaml</code> for a passing mock run, or <code>examples/config.problematic-many-to-many.yaml</code> for mismatches.</p>
+
+    <label>Optional case ID</label>
+    <input type="text" name="case_id" placeholder="case_many_to_many_problematic">
+    <p class="hint">Leave empty to run every test case in the config.</p>
+
+    <div class="actions">
+      <button formaction="/validate">Validate</button>
+      <button formaction="/run" class="primary">Run Check</button>
+    </div>
+  </form>
+</div>
+
+<aside class="card accent">
+  <h2>Quick Start</h2>
+  <ol class="steps">
+    <li>Start the app with <code>python3 -m api_migration_checker.app.web.main</code>.</li>
+    <li>Use the prefilled mock config path and click <strong>Validate</strong>.</li>
+    <li>Click <strong>Run Check</strong> to generate SQLite, JSON, CSV, and TXT results.</li>
+    <li>Open <a href="/runs">Runs</a> to inspect summaries and mismatches.</li>
+  </ol>
+  <h3>Useful sample paths</h3>
+  <ul class="plain">
+    <li><code>examples/config.sample.yaml</code></li>
+    <li><code>examples/config.problematic-many-to-many.yaml</code></li>
+    <li><code>examples/config.internal-api.yaml</code> <span class="muted">real local HTTP sample</span></li>
+  </ul>
+  <div class="actions">
+    <a class="button" href="/internal-api">Internal API Guide</a>
+    <a class="button" href="/config/new">Create Config</a>
+  </div>
+</aside>
+</section>
+
+<section class="card help">
+  <h2>Real API Auth Placeholders</h2>
+  <p>Use environment variables in config files instead of writing secrets directly.</p>
+  <div class="code-grid">
+    <pre><code>headers:
+  Authorization: "Bearer ${OLD_API_TOKEN}"</code></pre>
+    <pre><code>headers:
+  X-API-Key: "${OLD_API_KEY}"</code></pre>
+    <pre><code>headers:
+  Cookie: "sessionid=${OLD_SESSION_ID}"</code></pre>
+    <pre><code>cookies:
+  sessionid: "${NEW_SESSION_ID}"</code></pre>
+  </div>
+</section>
+{% endblock %}

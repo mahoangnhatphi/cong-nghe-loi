@@ -1,0 +1,307 @@
+migration_name: problematic-many-to-many-api-migration
+
+variables:
+  customerId: C1001
+  orderId: O9001
+  requestDate: "2026-05-28"
+
+source_apis:
+  - name: old_customer_api
+    method: GET
+    url: "mock://old/customers/{customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      data:
+        customer_id: C1001
+        customer_name: "张伟"
+        english_name: "Zhang Wei"
+        birth_date: "28/05/1990"
+        registered_at: "2026/05/28"
+        vip: "yes"
+        contact:
+          email: "zhang.wei@example.com"
+          phone: "+86-138-0000-0000"
+          address:
+            city: "上海"
+            district: "浦东新区"
+            line1: "世纪大道 100 号"
+        notes: "客户偏好中文服务"
+        empty_legacy_code: ""
+
+  - name: old_order_api
+    method: POST
+    url: "mock://old/orders/{orderId}"
+    headers:
+      Content-Type: "application/json"
+    body:
+      order_id: "${orderId}"
+      customer_id: "${customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      order:
+        id: O9001
+        created_at: "2026/05/28"
+        total_amount: "199.991"
+        currency: CNY
+        payment_status: "PAID"
+        items:
+          - sku: SKU-CN-001
+            title: "高级茶杯"
+            price: "88.80"
+            quantity: 1
+          - sku: SKU-CN-002
+            title: "龙井茶"
+            price: "111.19"
+            quantity: 1
+
+  - name: old_loyalty_api
+    method: GET
+    url: "mock://old/loyalty/{customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      loyalty:
+        member_level: "金牌会员"
+        points: "1500"
+        expiry_date: "31/12/2026"
+        referral_code: "CN-REF-2026-ZW"
+
+target_apis:
+  - name: new_profile_api
+    method: GET
+    url: "mock://new/profiles/{customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      profile:
+        identity:
+          id: C1001
+          fullName: "张伟"
+          displayName: "ZHANG WEI"
+          birthDate: "1990-05-28"
+          signupDate: "28-05-2026"
+        flags:
+          isVip: true
+        contact:
+          emailAddress: "zhang.wei@example.com"
+          primaryAddress:
+            city: "上海市"
+            district: "浦东新区"
+            lineOne: "世纪大道100号"
+        notesLocalized: "该客户偏好中文服务"
+        emptyNewCode: ""
+
+  - name: new_order_summary_api
+    method: GET
+    url: "mock://new/order-summary/{orderId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      summary:
+        orderId: O9001
+        placedDate: "28-05-2026"
+        payment:
+          total: 200.00
+          wrongTotal: 250.00
+          currencyCode: CNY
+          status: paid
+        lines:
+          - productCode: SKU-CN-001
+            productName: "高级茶杯"
+            unitPrice: 88.8
+          - productCode: SKU-CN-002
+            productName: "西湖龙井茶叶"
+            unitPrice: 120.0
+
+  - name: new_rewards_api
+    method: GET
+    url: "mock://new/rewards/{customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      rewards:
+        tierName: "银牌会员"
+        pointsBalance: 1500
+        validUntil: "2026-12-31"
+        referral:
+          code: "BAD-REF-2026"
+
+test_cases:
+  - id: case_many_to_many_problematic
+    params:
+      customerId: C1001
+      orderId: O9001
+      requestDate: "2026-05-28"
+
+field_mapping:
+  - name: chinese_name_exact_pass
+    source_api: old_customer_api
+    source_field: data.customer_name
+    target_api: new_profile_api
+    target_field: profile.identity.fullName
+    compare_type: exact
+
+  - name: english_display_name_ignore_case_pass
+    source_api: old_customer_api
+    source_field: data.english_name
+    target_api: new_profile_api
+    target_field: profile.identity.displayName
+    compare_type: ignore_case
+
+  - name: birth_date_format_pass
+    source_api: old_customer_api
+    source_field: data.birth_date
+    target_api: new_profile_api
+    target_field: profile.identity.birthDate
+    compare_type: date_format
+    source_format: dd/MM/yyyy
+    target_format: yyyy-MM-dd
+
+  - name: signup_date_format_pass
+    source_api: old_customer_api
+    source_field: data.registered_at
+    target_api: new_profile_api
+    target_field: profile.identity.signupDate
+    compare_type: date_format
+    source_format: yyyy/MM/dd
+    target_format: dd-MM-yyyy
+
+  - name: chinese_city_contains_pass
+    source_api: old_customer_api
+    source_field: data.contact.address.city
+    target_api: new_profile_api
+    target_field: profile.contact.primaryAddress.city
+    compare_type: contains
+    contains_direction: target_contains_source
+
+  - name: chinese_notes_contains_pass
+    source_api: old_customer_api
+    source_field: data.notes
+    target_api: new_profile_api
+    target_field: profile.notesLocalized
+    compare_type: contains
+    contains_direction: target_contains_source
+
+  - name: vip_boolean_pass
+    source_api: old_customer_api
+    source_field: data.vip
+    target_api: new_profile_api
+    target_field: profile.flags.isVip
+    compare_type: boolean
+
+  - name: order_total_tolerance_pass
+    source_api: old_order_api
+    source_field: order.total_amount
+    target_api: new_order_summary_api
+    target_field: summary.payment.total
+    compare_type: number
+    tolerance: 0.01
+
+  - name: order_total_wrong_amount_fail
+    source_api: old_order_api
+    source_field: order.total_amount
+    target_api: new_order_summary_api
+    target_field: summary.payment.wrongTotal
+    compare_type: number
+    tolerance: 0.01
+
+  - name: order_created_date_format_pass
+    source_api: old_order_api
+    source_field: order.created_at
+    target_api: new_order_summary_api
+    target_field: summary.placedDate
+    compare_type: date_format
+    source_format: yyyy/MM/dd
+    target_format: dd-MM-yyyy
+
+  - name: first_item_nested_price_pass
+    source_api: old_order_api
+    source_field: order.items[0].price
+    target_api: new_order_summary_api
+    target_field: summary.lines[0].unitPrice
+    compare_type: number
+    tolerance: 0.01
+
+  - name: second_item_nested_price_fail
+    source_api: old_order_api
+    source_field: order.items[1].price
+    target_api: new_order_summary_api
+    target_field: summary.lines[1].unitPrice
+    compare_type: number
+    tolerance: 0.01
+
+  - name: second_item_chinese_name_contains_pass
+    source_api: old_order_api
+    source_field: order.items[1].title
+    target_api: new_order_summary_api
+    target_field: summary.lines[1].productName
+    compare_type: contains
+    contains_direction: target_contains_source
+
+  - name: loyalty_tier_chinese_exact_fail
+    source_api: old_loyalty_api
+    source_field: loyalty.member_level
+    target_api: new_rewards_api
+    target_field: rewards.tierName
+    compare_type: exact
+
+  - name: loyalty_points_number_pass
+    source_api: old_loyalty_api
+    source_field: loyalty.points
+    target_api: new_rewards_api
+    target_field: rewards.pointsBalance
+    compare_type: number
+    tolerance: 0
+
+  - name: loyalty_expiry_date_format_pass
+    source_api: old_loyalty_api
+    source_field: loyalty.expiry_date
+    target_api: new_rewards_api
+    target_field: rewards.validUntil
+    compare_type: date_format
+    source_format: dd/MM/yyyy
+    target_format: yyyy-MM-dd
+
+  - name: referral_code_regex_fail
+    source_api: old_loyalty_api
+    source_field: loyalty.referral_code
+    target_api: new_rewards_api
+    target_field: rewards.referral.code
+    compare_type: regex
+    pattern: "^CN-REF-[0-9]{4}-[A-Z]{2}$"
+
+  - name: missing_target_field_fail
+    source_api: old_customer_api
+    source_field: data.contact.phone
+    target_api: new_profile_api
+    target_field: profile.contact.phoneNumber
+    compare_type: exact
+
+  - name: missing_source_field_fail
+    source_api: old_customer_api
+    source_field: data.tax_identifier
+    target_api: new_profile_api
+    target_field: profile.identity.id
+    compare_type: exact
+
+  - name: both_empty_suspicious_review_note
+    source_api: old_customer_api
+    source_field: data.empty_legacy_code
+    target_api: new_profile_api
+    target_field: profile.emptyNewCode
+    compare_type: exact
+    nullable: true
+
+  - name: ignored_address_line
+    source_api: old_customer_api
+    source_field: data.contact.address.line1
+    target_api: new_profile_api
+    target_field: profile.contact.primaryAddress.lineOne
+    compare_type: exact
+    ignore: true
+
+output:
+  directory: ./results
+  sqlite_path: ./results/migration_check.db
