@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>Run {{ run.id }}</h1>
+  <p>{{ run.migration_name }} · {{ run.status }}</p>
+  <div class="stats">
+    {% for key, value in summary.items() %}<div><span>{{ value }}</span>{{ key }}</div>{% endfor %}
+  </div>
+  <div class="actions">
+    <a class="button" href="/runs/{{ run.id }}/mismatches">Mismatches</a>
+    <a class="button" href="/runs/{{ run.id }}/responses">View API Responses</a>
+    <a class="button" href="/runs/{{ run.id }}/download/json">JSON</a>
+    <a class="button" href="/runs/{{ run.id }}/download/csv">CSV</a>
+    <a class="button" href="/runs/{{ run.id }}/download/txt">TXT</a>
+  </div>
+</section>
+<section class="card wide">
+  <h2>Field Comparison</h2>
+  <table>
+    <thead><tr><th>Case</th><th>Params</th><th>Mapping</th><th>Status</th><th>Source Value</th><th>Target Value</th><th>Message</th><th>Cross-check</th></tr></thead>
+    <tbody>
+      {% for detail in details %}
+      <tr><td>{{ detail.case_id }}</td><td><code>{{ detail.params_json }}</code></td><td>{{ detail.mapping_name }}</td><td class="{{ 'ok' if detail.status == 'PASS' else 'bad' }}">{{ detail.status }}</td><td>{{ detail.source_value_json }}</td><td>{{ detail.target_value_json }}</td><td>{{ detail.message or '' }}</td><td>{{ detail.cross_check_status or '' }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card wide">
+  <h2>API Responses</h2>
+  <table>
+    <thead><tr><th>Case</th><th>Params</th><th>Role</th><th>API</th><th>Status</th><th>URL</th><th>Response Body</th></tr></thead>
+    <tbody>
+      {% for result in api_results %}
+      <tr>
+        <td>{{ result.case_id }}</td>
+        <td><code>{{ result.params_json }}</code></td>
+        <td>{{ result.api_role }}</td>
+        <td>{{ result.api_name }}</td>
+        <td class="{{ 'ok' if result.status_code and result.status_code >= 200 and result.status_code < 300 else 'bad' }}">{{ result.status_code or 'ERROR' }}</td>
+        <td>{{ result.url }}</td>
+        <td><pre class="inline-pre"><code>{{ result.response_body_json }}</code></pre></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

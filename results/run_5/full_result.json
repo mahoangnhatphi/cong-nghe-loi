@@ -1,0 +1,400 @@
+{
+  "summary": {
+    "total_test_cases": 1,
+    "passed_cases": 0,
+    "failed_cases": 1,
+    "error_cases": 0,
+    "needs_review_cases": 0,
+    "total_compared_fields": 15,
+    "total_mismatched_fields": 4
+  },
+  "run_id": 5,
+  "migration_name": "internal-real-http-api-migration",
+  "test_cases": [
+    {
+      "case_id": "case_internal_api",
+      "status": "FAIL",
+      "api_results": [
+        {
+          "api_name": "old_customer_api",
+          "api_role": "source",
+          "method": "GET",
+          "url": "http://127.0.0.1:8000/internal-api/old/customers/C1001",
+          "request_headers": {
+            "Authorization": "Bearer old-demo-token",
+            "Accept": "application/json"
+          },
+          "request_cookies": {},
+          "request_body": null,
+          "status_code": 200,
+          "response_body": {
+            "data": {
+              "birth_date": "28/05/1990",
+              "contact": {
+                "address": {
+                  "city": "\u4e0a\u6d77",
+                  "district": "\u6d66\u4e1c\u65b0\u533a"
+                },
+                "email": "zhang.wei@example.com",
+                "phone": "+86-138-0000-0000"
+              },
+              "customer_id": "C1001",
+              "customer_name": "\u5f20\u4f1f",
+              "english_name": "Zhang Wei",
+              "vip": "yes"
+            }
+          },
+          "error": null,
+          "duration_ms": 130
+        },
+        {
+          "api_name": "old_loyalty_api",
+          "api_role": "source",
+          "method": "GET",
+          "url": "http://127.0.0.1:8000/internal-api/old/loyalty/C1001",
+          "request_headers": {
+            "Cookie": "legacy_session=old-session-123",
+            "Accept": "application/json"
+          },
+          "request_cookies": {},
+          "request_body": null,
+          "status_code": 200,
+          "response_body": {
+            "loyalty": {
+              "customer_id": "C1001",
+              "expiry_date": "31/12/2026",
+              "member_level": "\u91d1\u724c\u4f1a\u5458",
+              "points": "1500",
+              "referral_code": "CN-REF-2026-ZW"
+            }
+          },
+          "error": null,
+          "duration_ms": 21
+        },
+        {
+          "api_name": "old_order_api",
+          "api_role": "source",
+          "method": "POST",
+          "url": "http://127.0.0.1:8000/internal-api/old/orders/O9001",
+          "request_headers": {
+            "X-API-Key": "old-demo-api-key",
+            "Content-Type": "application/json"
+          },
+          "request_cookies": {},
+          "request_body": {
+            "customer_id": "C1001",
+            "request_date": "2026-05-28"
+          },
+          "status_code": 200,
+          "response_body": {
+            "order": {
+              "created_at": "2026/05/28",
+              "currency": "CNY",
+              "id": "O9001",
+              "items": [
+                {
+                  "price": "88.80",
+                  "sku": "SKU-CN-001",
+                  "title": "\u9ad8\u7ea7\u8336\u676f"
+                },
+                {
+                  "price": "111.19",
+                  "sku": "SKU-CN-002",
+                  "title": "\u9f99\u4e95\u8336"
+                }
+              ],
+              "requested_customer_id": "C1001",
+              "total_amount": "199.991"
+            }
+          },
+          "error": null,
+          "duration_ms": 21
+        },
+        {
+          "api_name": "new_order_summary_api",
+          "api_role": "target",
+          "method": "GET",
+          "url": "http://127.0.0.1:8000/internal-api/new/order-summary/O9001",
+          "request_headers": {},
+          "request_cookies": {
+            "new_session": "***"
+          },
+          "request_body": null,
+          "status_code": 200,
+          "response_body": {
+            "summary": {
+              "lines": [
+                {
+                  "productCode": "SKU-CN-001",
+                  "productName": "\u9ad8\u7ea7\u8336\u676f",
+                  "unitPrice": 88.8
+                },
+                {
+                  "productCode": "SKU-CN-002",
+                  "productName": "\u897f\u6e56\u9f99\u4e95\u8336\u53f6",
+                  "unitPrice": 120.0
+                }
+              ],
+              "orderId": "O9001",
+              "payment": {
+                "currencyCode": "CNY",
+                "total": 200.0,
+                "wrongTotal": 250.0
+              },
+              "placedDate": "28-05-2026"
+            }
+          },
+          "error": null,
+          "duration_ms": 22
+        },
+        {
+          "api_name": "new_profile_api",
+          "api_role": "target",
+          "method": "GET",
+          "url": "http://127.0.0.1:8000/internal-api/new/profiles/C1001",
+          "request_headers": {
+            "Authorization": "Bearer new-demo-token",
+            "Accept": "application/json"
+          },
+          "request_cookies": {},
+          "request_body": null,
+          "status_code": 200,
+          "response_body": {
+            "profile": {
+              "contact": {
+                "emailAddress": "zhang.wei@example.com",
+                "primaryAddress": {
+                  "city": "\u4e0a\u6d77\u5e02",
+                  "district": "\u6d66\u4e1c\u65b0\u533a"
+                }
+              },
+              "flags": {
+                "isVip": true
+              },
+              "identity": {
+                "birthDate": "1990-05-28",
+                "displayName": "ZHANG WEI",
+                "fullName": "\u5f20\u4f1f",
+                "id": "C1001"
+              }
+            }
+          },
+          "error": null,
+          "duration_ms": 24
+        },
+        {
+          "api_name": "new_rewards_api",
+          "api_role": "target",
+          "method": "GET",
+          "url": "http://127.0.0.1:8000/internal-api/new/rewards/C1001",
+          "request_headers": {
+            "X-API-Key": "new-demo-api-key",
+            "Accept": "application/json"
+          },
+          "request_cookies": {},
+          "request_body": null,
+          "status_code": 200,
+          "response_body": {
+            "rewards": {
+              "customerId": "C1001",
+              "pointsBalance": 1500,
+              "referral": {
+                "code": "BAD-REF-2026"
+              },
+              "tierName": "\u94f6\u724c\u4f1a\u5458",
+              "validUntil": "2026-12-31"
+            }
+          },
+          "error": null,
+          "duration_ms": 21
+        }
+      ],
+      "comparison_details": [
+        {
+          "mapping_name": "chinese_name_exact_pass",
+          "source_api": "old_customer_api",
+          "target_api": "new_profile_api",
+          "source_field": "data.customer_name",
+          "target_field": "profile.identity.fullName",
+          "compare_type": "exact",
+          "source_value": "\u5f20\u4f1f",
+          "target_value": "\u5f20\u4f1f",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "english_name_ignore_case_pass",
+          "source_api": "old_customer_api",
+          "target_api": "new_profile_api",
+          "source_field": "data.english_name",
+          "target_field": "profile.identity.displayName",
+          "compare_type": "ignore_case",
+          "source_value": "Zhang Wei",
+          "target_value": "ZHANG WEI",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "birth_date_format_pass",
+          "source_api": "old_customer_api",
+          "target_api": "new_profile_api",
+          "source_field": "data.birth_date",
+          "target_field": "profile.identity.birthDate",
+          "compare_type": "date_format",
+          "source_value": "28/05/1990",
+          "target_value": "1990-05-28",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "city_contains_pass",
+          "source_api": "old_customer_api",
+          "target_api": "new_profile_api",
+          "source_field": "data.contact.address.city",
+          "target_field": "profile.contact.primaryAddress.city",
+          "compare_type": "contains",
+          "source_value": "\u4e0a\u6d77",
+          "target_value": "\u4e0a\u6d77\u5e02",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "vip_boolean_pass",
+          "source_api": "old_customer_api",
+          "target_api": "new_profile_api",
+          "source_field": "data.vip",
+          "target_field": "profile.flags.isVip",
+          "compare_type": "boolean",
+          "source_value": "yes",
+          "target_value": true,
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "order_total_tolerance_pass",
+          "source_api": "old_order_api",
+          "target_api": "new_order_summary_api",
+          "source_field": "order.total_amount",
+          "target_field": "summary.payment.total",
+          "compare_type": "number",
+          "source_value": "199.991",
+          "target_value": 200.0,
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "order_total_wrong_amount_fail",
+          "source_api": "old_order_api",
+          "target_api": "new_order_summary_api",
+          "source_field": "order.total_amount",
+          "target_field": "summary.payment.wrongTotal",
+          "compare_type": "number",
+          "source_value": "199.991",
+          "target_value": 250.0,
+          "status": "FAIL",
+          "message": "Values differ: \"199.991\" != 250.0"
+        },
+        {
+          "mapping_name": "order_created_date_format_pass",
+          "source_api": "old_order_api",
+          "target_api": "new_order_summary_api",
+          "source_field": "order.created_at",
+          "target_field": "summary.placedDate",
+          "compare_type": "date_format",
+          "source_value": "2026/05/28",
+          "target_value": "28-05-2026",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "first_item_price_pass",
+          "source_api": "old_order_api",
+          "target_api": "new_order_summary_api",
+          "source_field": "order.items[0].price",
+          "target_field": "summary.lines[0].unitPrice",
+          "compare_type": "number",
+          "source_value": "88.80",
+          "target_value": 88.8,
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "second_item_price_fail",
+          "source_api": "old_order_api",
+          "target_api": "new_order_summary_api",
+          "source_field": "order.items[1].price",
+          "target_field": "summary.lines[1].unitPrice",
+          "compare_type": "number",
+          "source_value": "111.19",
+          "target_value": 120.0,
+          "status": "FAIL",
+          "message": "Values differ: \"111.19\" != 120.0"
+        },
+        {
+          "mapping_name": "second_item_name_contains_pass",
+          "source_api": "old_order_api",
+          "target_api": "new_order_summary_api",
+          "source_field": "order.items[1].title",
+          "target_field": "summary.lines[1].productName",
+          "compare_type": "contains",
+          "source_value": "\u9f99\u4e95\u8336",
+          "target_value": "\u897f\u6e56\u9f99\u4e95\u8336\u53f6",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "loyalty_tier_chinese_fail",
+          "source_api": "old_loyalty_api",
+          "target_api": "new_rewards_api",
+          "source_field": "loyalty.member_level",
+          "target_field": "rewards.tierName",
+          "compare_type": "exact",
+          "source_value": "\u91d1\u724c\u4f1a\u5458",
+          "target_value": "\u94f6\u724c\u4f1a\u5458",
+          "status": "FAIL",
+          "message": "Values differ: \"\\u91d1\\u724c\\u4f1a\\u5458\" != \"\\u94f6\\u724c\\u4f1a\\u5458\""
+        },
+        {
+          "mapping_name": "loyalty_points_pass",
+          "source_api": "old_loyalty_api",
+          "target_api": "new_rewards_api",
+          "source_field": "loyalty.points",
+          "target_field": "rewards.pointsBalance",
+          "compare_type": "number",
+          "source_value": "1500",
+          "target_value": 1500,
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "loyalty_expiry_date_pass",
+          "source_api": "old_loyalty_api",
+          "target_api": "new_rewards_api",
+          "source_field": "loyalty.expiry_date",
+          "target_field": "rewards.validUntil",
+          "compare_type": "date_format",
+          "source_value": "31/12/2026",
+          "target_value": "2026-12-31",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "mapping_name": "referral_regex_fail",
+          "source_api": "old_loyalty_api",
+          "target_api": "new_rewards_api",
+          "source_field": "loyalty.referral_code",
+          "target_field": "rewards.referral.code",
+          "compare_type": "regex",
+          "source_value": "CN-REF-2026-ZW",
+          "target_value": "BAD-REF-2026",
+          "status": "FAIL",
+          "message": "Values differ: \"CN-REF-2026-ZW\" != \"BAD-REF-2026\""
+        }
+      ],
+      "cross_check": {
+        "status": "CONFIRMED_FAIL",
+        "notes": []
+      }
+    }
+  ]
+}

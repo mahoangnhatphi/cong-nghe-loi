@@ -1,0 +1,72 @@
+migration_name: customer-api-migration
+
+variables:
+  customerId: C001
+
+source_apis:
+  - name: old_customer_api
+    method: GET
+    url: "mock://old/customers/{customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      data:
+        customer_name: "Ada Lovelace"
+        dob: "10/12/1815"
+        total: "42.50"
+        active: "yes"
+
+target_apis:
+  - name: new_customer_profile_api
+    method: GET
+    url: "mock://new/profile/{customerId}"
+    timeout_seconds: 5
+    retry_count: 0
+    mock_response:
+      profile:
+        fullName: "ada lovelace"
+        birthDate: "1815-12-10"
+        amount: 42.5
+        active: true
+
+test_cases:
+  - id: case_001
+    params:
+      customerId: C001
+
+field_mapping:
+  - name: customer_name_mapping
+    source_api: old_customer_api
+    source_field: data.customer_name
+    target_api: new_customer_profile_api
+    target_field: profile.fullName
+    compare_type: ignore_case
+    required: true
+
+  - name: birth_date_mapping
+    source_api: old_customer_api
+    source_field: data.dob
+    target_api: new_customer_profile_api
+    target_field: profile.birthDate
+    compare_type: date_format
+    source_format: dd/MM/yyyy
+    target_format: yyyy-MM-dd
+
+  - name: total_amount_mapping
+    source_api: old_customer_api
+    source_field: data.total
+    target_api: new_customer_profile_api
+    target_field: profile.amount
+    compare_type: number
+    tolerance: 0.01
+
+  - name: active_mapping
+    source_api: old_customer_api
+    source_field: data.active
+    target_api: new_customer_profile_api
+    target_field: profile.active
+    compare_type: boolean
+
+output:
+  directory: ./results
+  sqlite_path: ./results/migration_check.db

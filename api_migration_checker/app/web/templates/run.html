@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>Run Complete</h1>
+  <p><strong>Run ID:</strong> {{ result.run_id }}</p>
+  <p><strong>SQLite:</strong> {{ result.db_path }}</p>
+  <div class="stats">
+    {% for key, value in result.summary.items() %}<div><span>{{ value }}</span>{{ key }}</div>{% endfor %}
+  </div>
+  <div class="actions">
+    <a class="button" href="/runs/{{ result.run_id }}">View Details</a>
+    <a class="button" href="/runs/{{ result.run_id }}/mismatches">Mismatches</a>
+  </div>
+</section>
+{% endblock %}

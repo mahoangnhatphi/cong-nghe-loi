@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card wide">
+  <h1>Mismatches for Run {{ run_id }}</h1>
+  <table>
+    <thead><tr><th>Case</th><th>Params</th><th>Mapping</th><th>Source API</th><th>Target API</th><th>Source Value</th><th>Target Value</th><th>Status</th><th>Message</th></tr></thead>
+    <tbody>
+      {% for row in mismatches %}
+      <tr><td>{{ row.case_id }}</td><td><code>{{ row.params_json }}</code></td><td>{{ row.mapping_name }}</td><td>{{ row.source_api }}</td><td>{{ row.target_api }}</td><td>{{ row.source_value_json }}</td><td>{{ row.target_value_json }}</td><td class="bad">{{ row.status }}</td><td>{{ row.message or '' }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

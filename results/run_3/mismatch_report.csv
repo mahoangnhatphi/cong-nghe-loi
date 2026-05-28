@@ -1,0 +1,16 @@
+case_id,mapping_name,source_api,target_api,source_field,target_field,status,message
+case_internal_api,birth_date_format_pass,old_customer_api,new_profile_api,data.birth_date,profile.identity.birthDate,FAIL,Missing object key: data
+case_internal_api,chinese_name_exact_pass,old_customer_api,new_profile_api,data.customer_name,profile.identity.fullName,FAIL,Missing object key: data
+case_internal_api,city_contains_pass,old_customer_api,new_profile_api,data.contact.address.city,profile.contact.primaryAddress.city,FAIL,Missing object key: data
+case_internal_api,english_name_ignore_case_pass,old_customer_api,new_profile_api,data.english_name,profile.identity.displayName,FAIL,Missing object key: data
+case_internal_api,first_item_price_pass,old_order_api,new_order_summary_api,order.items[0].price,summary.lines[0].unitPrice,FAIL,Missing object key: order
+case_internal_api,loyalty_expiry_date_pass,old_loyalty_api,new_rewards_api,loyalty.expiry_date,rewards.validUntil,FAIL,Missing object key: loyalty
+case_internal_api,loyalty_points_pass,old_loyalty_api,new_rewards_api,loyalty.points,rewards.pointsBalance,FAIL,Missing object key: loyalty
+case_internal_api,loyalty_tier_chinese_fail,old_loyalty_api,new_rewards_api,loyalty.member_level,rewards.tierName,FAIL,Missing object key: loyalty
+case_internal_api,order_created_date_format_pass,old_order_api,new_order_summary_api,order.created_at,summary.placedDate,FAIL,Missing object key: order
+case_internal_api,order_total_tolerance_pass,old_order_api,new_order_summary_api,order.total_amount,summary.payment.total,FAIL,Missing object key: order
+case_internal_api,order_total_wrong_amount_fail,old_order_api,new_order_summary_api,order.total_amount,summary.payment.wrongTotal,FAIL,Missing object key: order
+case_internal_api,referral_regex_fail,old_loyalty_api,new_rewards_api,loyalty.referral_code,rewards.referral.code,FAIL,Missing object key: loyalty
+case_internal_api,second_item_name_contains_pass,old_order_api,new_order_summary_api,order.items[1].title,summary.lines[1].productName,FAIL,Missing object key: order
+case_internal_api,second_item_price_fail,old_order_api,new_order_summary_api,order.items[1].price,summary.lines[1].unitPrice,FAIL,Missing object key: order
+case_internal_api,vip_boolean_pass,old_customer_api,new_profile_api,data.vip,profile.flags.isVip,FAIL,Missing object key: data

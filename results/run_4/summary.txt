@@ -1,0 +1,7 @@
+total_test_cases: 1
+passed_cases: 1
+failed_cases: 0
+error_cases: 0
+needs_review_cases: 0
+total_compared_fields: 4
+total_mismatched_fields: 0

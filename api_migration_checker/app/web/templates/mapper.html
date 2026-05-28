@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Response Mapper</h1>
+  <p>Paste YAML specs, plain JSON responses, or safe curl commands. The mapper suggests same-meaning fields and generates a runnable config.</p>
+</section>
+
+<form method="post" action="/mapper/analyze">
+  <section class="card">
+    <h2>Input Mode</h2>
+    <label>Choose how you want to provide examples</label>
+    <select name="input_mode" id="input-mode">
+      <option value="yaml">YAML API specs with pasted responses</option>
+      <option value="json">Plain JSON responses + API metadata</option>
+      <option value="curl">curl commands, execute to fetch responses</option>
+    </select>
+    <p class="hint">curl mode only supports simple HTTP curl syntax. It never runs shell commands directly.</p>
+  </section>
+
+  <section class="mode-panel" data-mode="yaml">
+    <section class="grid two mapper-input-grid">
+      <div class="card">
+        <h2>Old APIs</h2>
+        <p class="hint">YAML list. Include name, method, url, auth, and a pasted response.</p>
+        <textarea name="old_apis" rows="34">{{ old_apis }}</textarea>
+      </div>
+      <div class="card">
+        <h2>New APIs</h2>
+        <p class="hint">YAML list. Add all candidate new APIs and responses.</p>
+        <textarea name="new_apis" rows="34">{{ new_apis }}</textarea>
+      </div>
+    </section>
+  </section>
+
+  <section class="mode-panel hidden" data-mode="json">
+    <section class="grid two mapper-input-grid">
+      <div class="card">
+        <h2>Old API Metadata</h2>
+        <p class="hint">YAML list with API name, method, URL, auth, headers, cookies, body.</p>
+        <textarea name="old_metadata" rows="13">{{ old_metadata }}</textarea>
+        <h2>Old JSON Responses</h2>
+        <p class="hint">JSON object keyed by API name.</p>
+        <textarea name="old_json_responses" rows="18">{{ old_json_responses }}</textarea>
+      </div>
+      <div class="card">
+        <h2>New API Metadata</h2>
+        <p class="hint">YAML list with API name, method, URL, auth, headers, cookies, body.</p>
+        <textarea name="new_metadata" rows="13">{{ new_metadata }}</textarea>
+        <h2>New JSON Responses</h2>
+        <p class="hint">JSON object keyed by API name.</p>
+        <textarea name="new_json_responses" rows="18">{{ new_json_responses }}</textarea>
+      </div>
+    </section>
+  </section>
+
+  <section class="mode-panel hidden" data-mode="curl">
+    <section class="card warning-card">
+      <h2>curl Execution Safety</h2>
+      <p>The app parses a safe subset of curl and executes HTTP requests with Python, not through bash. Pipes, redirects, command chaining, subshells, output files, and unsupported options are rejected.</p>
+      <label class="checkline"><input type="checkbox" name="allow_curl_execute" value="yes"> I allow the app to execute these curl HTTP requests</label>
+    </section>
+    <section class="grid two mapper-input-grid">
+      <div class="card">
+        <h2>Old API curl Commands</h2>
+        <p class="hint">YAML list of name, optional url_template, and curl block.</p>
+        <textarea name="old_curl_specs" rows="30">{{ old_curl_specs }}</textarea>
+      </div>
+      <div class="card">
+        <h2>New API curl Commands</h2>
+        <p class="hint">Use url_template if the pasted curl contains concrete IDs but generated config should use variables.</p>
+        <textarea name="new_curl_specs" rows="30">{{ new_curl_specs }}</textarea>
+      </div>
+    </section>
+  </section>
+
+  <section class="card">
+    <h2>Test Cases</h2>
+    <p class="hint">Paste CSV rows for multiple customers, orders, and loyalty records. YAML list is also supported.</p>
+    <textarea name="test_cases" rows="5">{{ test_cases }}</textarea>
+    <div class="actions">
+      <button class="primary" type="submit">Analyze Responses</button>
+      <a class="button" href="/internal-api">Use Internal API Sample</a>
+    </div>
+  </section>
+</form>
+
+<script>
+  const modeSelect = document.getElementById('input-mode');
+  const panels = [...document.querySelectorAll('.mode-panel')];
+  function updateMode() {
+    panels.forEach((panel) => panel.classList.toggle('hidden', panel.dataset.mode !== modeSelect.value));
+  }
+  modeSelect.addEventListener('change', updateMode);
+  updateMode();
+</script>
+{% endblock %}

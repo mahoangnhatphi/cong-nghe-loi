@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>API Responses for Run {{ run.id }}</h1>
+  <p>{{ run.migration_name }} · {{ run.status }}</p>
+  <div class="actions">
+    <a class="button" href="/runs/{{ run.id }}">Back To Run</a>
+    <a class="button" href="/runs/{{ run.id }}/download/json">Download Full JSON</a>
+  </div>
+</section>
+
+{% for case in cases %}
+<section class="card response-case">
+  <h2>Test Case: {{ case.case_id }}</h2>
+  <p><strong>Params:</strong> <code>{{ case.params_json }}</code></p>
+  <div class="response-grid">
+    <div>
+      <h3>Old / Source API Responses</h3>
+      {% for result in case.source %}
+      <details class="response-panel" open>
+        <summary>{{ result.api_name }} · {{ result.status_code or 'ERROR' }} · {{ result.duration_ms }}ms</summary>
+        <p><strong>URL:</strong> {{ result.url }}</p>
+        <p><strong>Method:</strong> {{ result.method }}</p>
+        {% if result.error %}<p class="bad"><strong>Error:</strong> {{ result.error }}</p>{% endif %}
+        <h4>Response Body</h4>
+        <pre class="response-pre"><code>{{ result.response_pretty }}</code></pre>
+        <h4>Request Headers</h4>
+        <pre class="response-pre small"><code>{{ result.request_headers_pretty }}</code></pre>
+        <h4>Request Body</h4>
+        <pre class="response-pre small"><code>{{ result.request_body_pretty }}</code></pre>
+      </details>
+      {% else %}
+      <p class="muted">No source API responses found.</p>
+      {% endfor %}
+    </div>
+
+    <div>
+      <h3>New / Target API Responses</h3>
+      {% for result in case.target %}
+      <details class="response-panel" open>
+        <summary>{{ result.api_name }} · {{ result.status_code or 'ERROR' }} · {{ result.duration_ms }}ms</summary>
+        <p><strong>URL:</strong> {{ result.url }}</p>
+        <p><strong>Method:</strong> {{ result.method }}</p>
+        {% if result.error %}<p class="bad"><strong>Error:</strong> {{ result.error }}</p>{% endif %}
+        <h4>Response Body</h4>
+        <pre class="response-pre"><code>{{ result.response_pretty }}</code></pre>
+        <h4>Request Headers</h4>
+        <pre class="response-pre small"><code>{{ result.request_headers_pretty }}</code></pre>
+        <h4>Request Body</h4>
+        <pre class="response-pre small"><code>{{ result.request_body_pretty }}</code></pre>
+      </details>
+      {% else %}
+      <p class="muted">No target API responses found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

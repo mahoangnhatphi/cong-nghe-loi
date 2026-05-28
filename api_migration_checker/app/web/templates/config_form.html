@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Create Config</h1>
+  <p>Generate a downloadable YAML config for real API checks. Secrets are written as environment variable placeholders.</p>
+</section>
+
+<form method="post" action="/config/download">
+  <section class="card">
+    <h2>Migration</h2>
+    <label>Migration name</label>
+    <input name="migration_name" value="real-api-migration" placeholder="customer-api-migration">
+    <label>Test case ID</label>
+    <input name="case_id" value="case_001" placeholder="case_001">
+    <label>Test case params YAML/JSON</label>
+    <textarea name="params_json" rows="4">customerId: C1001
+orderId: O9001
+requestDate: "2026-05-28"</textarea>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <h2>Source API</h2>
+      <label>Name</label>
+      <input name="source_api_name" value="old_customer_api">
+      <label>Method</label>
+      <select name="source_method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+      <label>URL</label>
+      <input name="source_url" value="http://127.0.0.1:8000/internal-api/old/customers/{customerId}">
+      <label>Auth type</label>
+      <select name="source_auth_type">
+        <option value="none">None</option>
+        <option value="bearer" selected>Bearer token</option>
+        <option value="api_key">API key header</option>
+        <option value="basic">Basic Authorization header</option>
+        <option value="cookie_header">Cookie header</option>
+        <option value="cookie_object_simple">Cookie object simple</option>
+        <option value="cookie_object_advanced">Cookie object advanced</option>
+      </select>
+      <label>Auth env var</label>
+      <input name="source_auth_env" value="OLD_API_TOKEN" placeholder="OLD_API_TOKEN">
+      <label>API key header name</label>
+      <input name="source_api_key_header" value="X-API-Key">
+      <label>Cookie header value</label>
+      <input name="source_cookie_header" value="legacy_session=${OLD_LEGACY_SESSION}">
+      <label>Simple cookie names</label>
+      <input name="source_cookie_names" value="legacy_session" placeholder="sessionid, csrf_token">
+      <label>Simple cookie env prefix</label>
+      <input name="source_cookie_env_prefix" value="OLD">
+      <label>Advanced cookies, one per line: cookie_name=ENV_VAR</label>
+      <textarea name="source_cookies_advanced" rows="3">legacy_session=OLD_LEGACY_SESSION</textarea>
+      <label>Headers, one per line: Name: value</label>
+      <textarea name="source_headers" rows="3">Accept: application/json</textarea>
+      <label>Query params, one per line: name: value</label>
+      <textarea name="source_query" rows="2"></textarea>
+      <label>Body YAML/JSON</label>
+      <textarea name="source_body" rows="4"></textarea>
+      <label>Timeout seconds</label>
+      <input name="source_timeout" value="10">
+      <label>Retry count</label>
+      <input name="source_retry" value="1">
+    </div>
+
+    <div class="card">
+      <h2>Target API</h2>
+      <label>Name</label>
+      <input name="target_api_name" value="new_profile_api">
+      <label>Method</label>
+      <select name="target_method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+      <label>URL</label>
+      <input name="target_url" value="http://127.0.0.1:8000/internal-api/new/profiles/{customerId}">
+      <label>Auth type</label>
+      <select name="target_auth_type">
+        <option value="none">None</option>
+        <option value="bearer" selected>Bearer token</option>
+        <option value="api_key">API key header</option>
+        <option value="basic">Basic Authorization header</option>
+        <option value="cookie_header">Cookie header</option>
+        <option value="cookie_object_simple">Cookie object simple</option>
+        <option value="cookie_object_advanced">Cookie object advanced</option>
+      </select>
+      <label>Auth env var</label>
+      <input name="target_auth_env" value="NEW_API_TOKEN" placeholder="NEW_API_TOKEN">
+      <label>API key header name</label>
+      <input name="target_api_key_header" value="X-API-Key">
+      <label>Cookie header value</label>
+      <input name="target_cookie_header" value="new_session=${NEW_SESSION_ID}">
+      <label>Simple cookie names</label>
+      <input name="target_cookie_names" value="new_session" placeholder="sessionid, csrf_token">
+      <label>Simple cookie env prefix</label>
+      <input name="target_cookie_env_prefix" value="NEW">
+      <label>Advanced cookies, one per line: cookie_name=ENV_VAR</label>
+      <textarea name="target_cookies_advanced" rows="3">new_session=NEW_SESSION_ID</textarea>
+      <label>Headers, one per line: Name: value</label>
+      <textarea name="target_headers" rows="3">Accept: application/json</textarea>
+      <label>Query params, one per line: name: value</label>
+      <textarea name="target_query" rows="2"></textarea>
+      <label>Body YAML/JSON</label>
+      <textarea name="target_body" rows="4"></textarea>
+      <label>Timeout seconds</label>
+      <input name="target_timeout" value="10">
+      <label>Retry count</label>
+      <input name="target_retry" value="1">
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>First Field Mapping</h2>
+    <label>Mapping name</label>
+    <input name="mapping_name" value="customer_name_mapping">
+    <label>Source field</label>
+    <input name="source_field" value="data.customer_name">
+    <label>Target field</label>
+    <input name="target_field" value="profile.identity.fullName">
+    <label>Compare type</label>
+    <select name="compare_type">
+      <option>exact</option>
+      <option>ignore_case</option>
+      <option>number</option>
+      <option>boolean</option>
+      <option>date_format</option>
+      <option>contains</option>
+      <option>regex</option>
+      <option>custom_transform</option>
+    </select>
+    <label>Number tolerance</label>
+    <input name="tolerance" placeholder="0.01">
+    <label>Source date format</label>
+    <input name="source_format" placeholder="dd/MM/yyyy">
+    <label>Target date format</label>
+    <input name="target_format" placeholder="yyyy-MM-dd">
+    <div class="actions">
+      <button class="primary" type="submit">Download YAML Config</button>
+      <a class="button" href="/">Cancel</a>
+    </div>
+  </section>
+</form>
+{% endblock %}
