@@ -34,6 +34,7 @@ button, .button { border: 0; background: #e8eef8; color: #172033; padding: 11px 
 button.primary { background: #2463eb; color: white; }
 .mapper-input-grid textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
 .warning-card { border-color: #f59e0b; background: #fffbeb; }
+.ai-card { border-color: #8b5cf6; background: #faf5ff; }
 .mapper-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 2; margin-bottom: 18px; }
 .mapping-card { margin-bottom: 18px; border-left: 6px solid #94a3b8; }
 .mapping-card.high { border-left-color: #067647; }
@@ -46,6 +47,7 @@ button.primary { background: #2463eb; color: white; }
 .badge.high { background: #dcfce7; color: #067647; }
 .badge.medium { background: #fef3c7; color: #92400e; }
 .badge.low { background: #e2e8f0; color: #334155; }
+.origin-badge { background: #ede9fe; color: #5b21b6; border-radius: 999px; padding: 5px 10px; font-weight: 900; font-size: 12px; }
 .mapping-compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(260px, 0.7fr); gap: 16px; }
 .field-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; }
 .field-panel h3 { margin: 0 0 10px; }

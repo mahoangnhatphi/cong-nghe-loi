@@ -33,12 +33,33 @@
   </section>
   {% endif %}
 
+  {% if ai_result %}
+  <section class="card ai-card">
+    <h2>AI Matching</h2>
+    <p><strong>Available providers:</strong> {{ ai_result.available_providers|join(', ') if ai_result.available_providers else 'none detected' }}</p>
+    <p><strong>Selected provider:</strong> {{ ai_result.selected_provider or 'manual / unavailable' }}</p>
+    {% if ai_result.error %}<p class="bad"><strong>AI note:</strong> {{ ai_result.error }}</p>{% endif %}
+    <p><strong>AI suggestions merged:</strong> {{ ai_result.suggestions|length }}</p>
+    <details>
+      <summary>Generated AI prompt for manual copy/paste</summary>
+      <textarea rows="18" readonly>{{ ai_result.prompt }}</textarea>
+    </details>
+    {% if ai_result.raw_response %}
+    <details>
+      <summary>Raw AI response</summary>
+      <textarea rows="10" readonly>{{ ai_result.raw_response }}</textarea>
+    </details>
+    {% endif %}
+  </section>
+  {% endif %}
+
   {% for suggestion in suggestions %}
   {% set selected = suggestion.confidence in ["HIGH", "MEDIUM"] %}
   <section class="mapping-card card {{ suggestion.confidence|lower }}">
     <div class="mapping-head">
       <label class="checkline"><input type="checkbox" name="selected_mapping" value="{{ loop.index0 }}" {% if selected %}checked{% endif %}> Use this mapping</label>
       <span class="badge {{ suggestion.confidence|lower }}">{{ suggestion.confidence }} {{ suggestion.score }}</span>
+      <span class="origin-badge">{{ suggestion.origin|upper }}</span>
       <span class="muted">{{ suggestion.reason }}</span>
     </div>
 
